@@ -1,4 +1,6 @@
-from sqlalchemy import insert
+from sqlalchemy import insert, select
+
+import logging
 
 from asyncpg.exceptions import UniqueViolationError
 from sqlalchemy.exc import IntegrityError
@@ -27,3 +29,19 @@ class UsersRepository(BaseRepository):
         except IntegrityError as ex:
             if isinstance(ex.orig.__cause__, UniqueViolationError):
                 raise UserAlreadyExists
+
+
+    async def get_user_with_hashed_password(self, email):
+
+            query = select(self.model).filter_by(email=email)
+            results = await self.session.execute(query)
+            model = results.scalars().one()
+            return self.mapper.map_to_domain(model)
+
+
+    async def get_user(self, user_id):
+        query = select(self.model).filter_by(id=user_id)
+        results = await self.session.execute(query)
+        model = results.scalars().one()
+        return self.mapper.map_to_domain(model)
+

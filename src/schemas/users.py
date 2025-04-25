@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
 class UserRequestDTO(BaseModel):
@@ -15,6 +17,11 @@ class UserAdd(BaseModel):
     password: str
 
 
+class UserLoginDTO(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class UserAfterDTO(UserRequestDTO):
     shop_id: int
     link_photo: str
@@ -23,5 +30,16 @@ class UserAfterDTO(UserRequestDTO):
     subscription_id: int
 
 
-class UserDTO(UserAfterDTO):
+class UserDTO(BaseModel):
     id: int
+    first_name: str
+    last_name: str
+    email: str
+    password: str
+    shop_id: Optional[int] = None
+    link_photo: Optional[str] = None
+    number_phone: Optional[str] = None
+    about_me: Optional[str] = None
+    subscription_id: Optional[int] = None
+
+    model_config = ConfigDict(from_attributes=True)
