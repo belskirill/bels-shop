@@ -7,7 +7,7 @@ import jwt
 
 from src.exceptions import UserAlreadyExists, UserAlreadyExistsException, FailRegisterException, \
     IncorrectPasswordException, FailedPasswordException, UserNotFondException
-from src.schemas.users import UserRequestDTO, UserAdd
+from src.schemas.users_auth import UserRequestDTO, UserAdd
 from src.service.base import BaseService
 from src.config import settigns
 

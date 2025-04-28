@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Response, Request, Depends
 
+
 from src.api.dependencies import DBDep, UserValidRefresh, UserIdDep, UserExpiredAccess, access_token_check
 from src.exceptions import UserAlreadyExistsException, UserAlreadyExistsHTTPException, FailRegisterException, \
     FailRegisterHTTPException, UserNotFondHTTPException, UserNotFondException, FailedPasswordHTTPException, \
     FailedPasswordException, IncorrectPasswordHTTPException, IncorrectPasswordException
-from src.schemas.users import UserRequestDTO, UserLoginDTO
+from src.schemas.users_auth import UserRequestDTO, UserLoginDTO
 from src.service.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])

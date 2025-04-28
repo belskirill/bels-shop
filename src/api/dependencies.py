@@ -33,6 +33,7 @@ async def refresh_check(request: Request, db: DBDep):
         # Декодируем refresh_token и проверяем его валидность
         decoded_refresh_token = AuthService(db).encode_token(refresh_token)
 
+
         # Проверяем тип токена и извлекаем информацию о пользователе
         if decoded_refresh_token.get("type") != "refresh":
             raise HTTPException(status_code=401, detail="Invalid token type")
@@ -81,42 +82,26 @@ UserIdDep = Annotated[int, Depends(current_user_id)]
 
 
 
-import time
-import jwt
-from fastapi import Request, HTTPException
-from jwt import ExpiredSignatureError, InvalidTokenError
-
-
-def decode_access_token(token: str):
-    try:
-        decoded_token = jwt.decode(token, settigns.JWT_SECRET_KEY, algorithms=[settigns.JWT_ALGORITHM])
-        return decoded_token
-    except ExpiredSignatureError:
-        return None  # Возвращаем None, если токен истёк
-    except InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid access token")  # Невалидный токен
-
-
 async def access_token_check(request: Request):
     try:
         access_token = request.cookies.get("access_token")
         if not access_token:
-            raise HTTPException(status_code=401, detail="Access token not found")
+            raise HTTPException(status_code=401, detail="access_token не найден")
 
-        decoded_access_token = decode_access_token(access_token)
+        decoded_access_token = AuthService().encode_token(access_token)
 
         if decoded_access_token is None:
             return None
 
         if decoded_access_token.get("exp") > int(time.time()):
-            raise HTTPException(status_code=401, detail="Access token is still active")
+            raise HTTPException(status_code=409, detail="У вас активный токен!")
 
         return None
 
     except ExpiredSignatureError:
         return None
     except InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid access token")
+        raise HTTPException(status_code=401, detail="Неверный access_token")
 
 
 UserExpiredAccess = Annotated[None, Depends(access_token_check)]

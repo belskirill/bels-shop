@@ -7,6 +7,7 @@ from fastapi import FastAPI
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.api.auth import router as router_auth
+from src.api.users import router as router_users
 
 
 
@@ -14,6 +15,7 @@ from src.api.auth import router as router_auth
 app = FastAPI(title='BELS-SHOP Docs')
 
 app.include_router(router_auth)
+app.include_router(router_users)
 
 
 if __name__ == "__main__":

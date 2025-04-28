@@ -1,3 +1,4 @@
+from src.repositories.passwordchange import PasswordChangeRepository
 from src.repositories.users import UsersRepository
 
 
@@ -9,6 +10,7 @@ class DBManager:
         self.session = self.session_factory()
 
         self.users = UsersRepository(self.session)
+        self.password_change = PasswordChangeRepository(self.session)
 
         return self
 

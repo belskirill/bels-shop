@@ -45,3 +45,5 @@ class UsersRepository(BaseRepository):
         model = results.scalars().one()
         return self.mapper.map_to_domain(model)
 
+
+
