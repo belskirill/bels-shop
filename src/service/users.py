@@ -1,4 +1,3 @@
-import logging
 import uuid
 from datetime import datetime, timedelta
 
@@ -6,6 +5,7 @@ from src.exceptions import UserNotFondException, FailedPasswordException
 from src.schemas.users import UserPasswordChache
 from src.service.auth import AuthService
 from src.service.base import BaseService
+from src.tasks.tasks import change_password
 
 
 class UsersService(BaseService):
@@ -30,8 +30,8 @@ class UsersService(BaseService):
 
         await self.db.password_change.add_data(password_change_tokens)
         await self.db.commit()
+        change_password.delay(user.email)
         # TODO: добавить обработку ошибок
-        # TODO: добавить celery задачу для отправки письма на почту кто изменил пароль
         # TODO: имитация перехода по ссылке,
         #  отдельная ручка как будто фронт отправляет что пользователь подтвердил
 
