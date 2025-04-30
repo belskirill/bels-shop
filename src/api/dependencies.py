@@ -105,6 +105,24 @@ def current_user_id(token: str = Depends(get_token)) -> int:
 UserIdDep = Annotated[int, Depends(current_user_id)]
 
 
+def current_user_email(token: str = Depends(get_token)) -> int:
+    try:
+        data = AuthService().encode_token(token)
+        return data["email"]
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Срок действия токена истёк",
+        )
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Недействительный токен",
+        )
+
+UserEDep = Annotated[str, Depends(current_user_email)]
+
+
 
 async def access_token_check(request: Request):
     try:

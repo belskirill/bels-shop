@@ -21,7 +21,7 @@ async def edit_user_info(data: UserInfoPatch, db: DBDep, user: UserIdDep):
     return {"data": response}
 
 
-@router.post("/image/me")
+@router.post("/image/download")
 async def edit_photo_user(db: DBDep, user: UserIdDep, file: UploadFile):
     response = await UsersService(db).edit_photo(user=user, file=file)
     return {

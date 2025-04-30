@@ -48,6 +48,42 @@ def info_update_password(receiver_email):
     print("Письмо отправлено!")
 
 
+@celery_instance.task
+def info_email_confirm_shop(receiver_email):
+    sender_email = settigns.EMAIL
+    receiver_email = receiver_email
+    sender_password = settigns.SENDER_PASSWORD
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Верификация пройдена"
+    message["From"] = sender_email
+    message["To"] = receiver_email
+
+    html = """\
+       <html>
+         <body>
+           <p>Здравствуйте!<br><br>
+              Ваш магазин прошел верификацию на bels-shop.<br>
+              <b>Теперь вы можете размещать товары!</b>
+              С уважением, команда bels-shop.
+           </p>
+         </body>
+       </html>
+       """
+
+    part2 = MIMEText(html, "html")
+
+    message.attach(part2)
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, receiver_email, message.as_string())
+
+    print("Письмо отправлено!")
+
 async def check_change_password_not_used_start():
     print("i start")
     async with DBManager(session_factory=async_session_maker_null_pool) as db:

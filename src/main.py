@@ -14,6 +14,8 @@ from src.init import redis_manager
 
 from src.api.auth import router as router_auth
 from src.api.users import router as router_users
+from src.api.shops import router as router_shops
+from src.api.admin import router as router_admins
 
 
 from fastapi_cache import FastAPICache
@@ -33,6 +35,8 @@ app = FastAPI(title='BELS-SHOP Docs')
 
 app.include_router(router_auth)
 app.include_router(router_users)
+app.include_router(router_shops)
+app.include_router(router_admins)
 
 
 if __name__ == "__main__":

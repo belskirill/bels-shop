@@ -1,6 +1,7 @@
 from sqlalchemy import delete
 
 from src.repositories.passwordchange import PasswordChangeRepository
+from src.repositories.shops import ShopsRepository
 from src.repositories.users import UsersRepository
 
 
@@ -13,6 +14,7 @@ class DBManager:
 
         self.users = UsersRepository(self.session)
         self.password_change = PasswordChangeRepository(self.session)
+        self.shops = ShopsRepository(self.session)
 
         return self
 

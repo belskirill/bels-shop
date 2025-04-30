@@ -19,8 +19,6 @@ class UsersRepository(BaseRepository):
     model = UsersOrm
     mapper = UserDataMapper
 
-    def __init__(self, session):
-        self.session = session
 
     async def add_user(self, data):
         query = (
