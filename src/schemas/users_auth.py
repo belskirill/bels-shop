@@ -47,3 +47,23 @@ class UserDTO(BaseModel):
     # password_change_tokens: Optional[List[UserPasswordChache]]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserInfoPatch(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    number_phone: Optional[str] = None
+    about_me: Optional[str] = None
+
+
+class UserEditDTO(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    email: str
+    number_phone: str
+    about_me: str
+
+    # password_change_tokens: Optional[List[UserPasswordChache]]
+
+    model_config = ConfigDict(from_attributes=True)

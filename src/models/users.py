@@ -15,10 +15,14 @@ class UsersOrm(Base):
     email: Mapped[str] = mapped_column(String, unique=True)
     number_phone: Mapped[str] = mapped_column(String, nullable=True, unique=True)
     password: Mapped[str] = mapped_column(String)
-    shop_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("shops.id"), nullable=True)
     link_photo: Mapped[str] = mapped_column(String, nullable=True)
     about_me: Mapped[str] = mapped_column(String, nullable=True)
     subscription_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("subscriptions.id"), nullable=True)
+
+    shop: Mapped["ShopsOrm"] = relationship("ShopsOrm", back_populates="user", uselist=False)
+
+    # 🔁 Many-to-one: пользователь → подписка
+    subscription: Mapped["SubscriptionsOrm"] = relationship("SubscriptionsOrm", back_populates="users")
 
     password_change_tokens: Mapped[list["PasswordChangeTokenOrm"]] = relationship(
         "PasswordChangeTokenOrm", back_populates="user"

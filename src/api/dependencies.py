@@ -1,6 +1,6 @@
 from typing import Annotated
 import jwt
-import time
+from src import time
 
 from fastapi import Depends, Request, HTTPException
 from jwt import ExpiredSignatureError, InvalidTokenError
@@ -9,8 +9,6 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 from src.database import async_session_maker
 from src.service.auth import AuthService
 from src.utils.db_manager import DBManager
-
-from src.config import settigns
 
 
 async def get_db():
@@ -21,6 +19,32 @@ async def get_db():
 DBDep = Annotated[DBManager, Depends(get_db)]
 
 
+
+
+def check_login(request: Request):
+    token = request.cookies.get("access_token", None)
+    token_refresh = request.cookies.get("refresh_token", None)
+    if token or token_refresh:
+        raise HTTPException(
+            status_code=409,
+            detail="Вы уже авторизованы!",
+        )
+
+
+ChechLogin = Annotated[None, Depends(check_login)]
+
+
+def check_no_login(request: Request):
+    token = request.cookies.get("access_token", None)
+    token_refresh = request.cookies.get("refresh_token", None)
+    if not token or not token_refresh:
+        raise HTTPException(
+            status_code=409,
+            detail="Вы не авторизованы!",
+        )
+
+
+CheckNoLogin = Annotated[None, Depends(check_no_login)]
 
 async def refresh_check(request: Request, db: DBDep):
     try:

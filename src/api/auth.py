@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Response, Request, Depends
 
 
-from src.api.dependencies import DBDep, UserValidRefresh, UserIdDep, UserExpiredAccess, access_token_check
+from src.api.dependencies import DBDep, UserValidRefresh, UserIdDep, UserExpiredAccess, access_token_check, \
+    CheckNoLogin, ChechLogin
 from src.exceptions import UserAlreadyExistsException, UserAlreadyExistsHTTPException, FailRegisterException, \
     FailRegisterHTTPException, UserNotFondHTTPException, UserNotFondException, FailedPasswordHTTPException, \
     FailedPasswordException, IncorrectPasswordHTTPException, IncorrectPasswordException
@@ -23,7 +24,7 @@ async def register_user(data: UserRequestDTO, db: DBDep):
 
 
 @router.post("/login")
-async def login_user(data: UserLoginDTO, db: DBDep, response: Response):
+async def login_user(data: UserLoginDTO, db: DBDep, response: Response, checklogin: ChechLogin):
     try:
         access_token = await AuthService(db).login_user(data)
         refresh_token = await AuthService(db).refresh_token(data)
@@ -36,6 +37,13 @@ async def login_user(data: UserLoginDTO, db: DBDep, response: Response):
         raise FailedPasswordHTTPException
     except UserNotFondException:
         raise UserNotFondHTTPException
+
+
+@router.post("/logout")
+async def logout_user(response: Response, check_no_login: CheckNoLogin):
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    return {"status": "OK"}
 
 
 @router.post("/refresh")

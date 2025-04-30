@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     SENDER_PASSWORD: str
     EMAIL:str
 
+    CLIENT_ID: str
+
 
 
 

@@ -6,10 +6,7 @@ from alembic import context
 
 from src.database import Base
 from src.config import settigns
-from src.models.users import UsersOrm
-from src.models.shops import ShopsOrm
-from src.models.subscriptions import SubscriptionsOrm
-from src.models.tarifs import TarifsOrm
+from src.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

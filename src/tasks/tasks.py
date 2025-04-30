@@ -1,13 +1,16 @@
+import asyncio
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 from src.config import settigns
+from src.database import async_session_maker_null_pool
 from src.tasks.celery_app import celery_instance
+from src.utils.db_manager import DBManager
 
 
 @celery_instance.task
-def change_password(receiver_email):
+def info_update_password(receiver_email):
     sender_email = settigns.EMAIL
     receiver_email = receiver_email
     sender_password = settigns.SENDER_PASSWORD
@@ -23,8 +26,10 @@ def change_password(receiver_email):
     <html>
       <body>
         <p>Здравствуйте!<br><br>
-           Вы изменили свой пароль на сайте bels-shop.<br>
-           <b>Если это были не вы</b>, пожалуйста, обратитесь в тех.поддержку.<br><br>
+           Подтвердите смену пароля на сайте bels-shop.<br>
+           <b>Нажмите на кнопку ниже!</b>
+            <button onclick="alert('Кнопка нажата!')">Нажми меня</button>
+
            С уважением, команда bels-shop.
         </p>
       </body>
@@ -41,3 +46,14 @@ def change_password(receiver_email):
         server.sendmail(sender_email, receiver_email, message.as_string())
 
     print("Письмо отправлено!")
+
+
+async def check_change_password_not_used_start():
+    print("i start")
+    async with DBManager(session_factory=async_session_maker_null_pool) as db:
+        await db.password_change.delete_not_confirm()
+
+
+@celery_instance.task(name="chech_not_used_change_password")
+def check_not_used_where_change_password():
+    asyncio.run(check_change_password_not_used_start())

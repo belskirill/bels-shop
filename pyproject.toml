@@ -22,6 +22,8 @@ dependencies = [
     "celery (>=5.5.2,<6.0.0)",
     "redis (>=5.2.1,<6.0.0)",
     "fastapi-cache2 (==0.2.2)",
+    "requests (>=2.32.3,<3.0.0)",
+    "python-multipart (>=0.0.20,<0.0.21)",
 ]
 
 

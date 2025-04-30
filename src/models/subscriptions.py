@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from sqlalchemy import ForeignKey, Boolean, DateTime, Integer
-from sqlalchemy.orm import Mapped
-from sqlalchemy.testing.schema import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 
 from src.database import Base
 
@@ -15,3 +15,9 @@ class SubscriptionsOrm(Base):
     start_date: Mapped[datetime] = mapped_column(DateTime)
     end_date: Mapped[datetime] = mapped_column(DateTime)
     tarifs_id: Mapped[int] = mapped_column(Integer, ForeignKey('tarifs.id'))
+
+
+    tarif: Mapped["TarifsOrm"] = relationship("TarifsOrm", back_populates="subscriptions")
+
+
+    users: Mapped[list["UsersOrm"]] = relationship("UsersOrm", back_populates="subscription")

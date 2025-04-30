@@ -1,8 +1,7 @@
 
 
-from sqlalchemy.orm import Mapped
 from sqlalchemy import String
-from sqlalchemy.testing.schema import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
 
@@ -12,3 +11,5 @@ class TarifsOrm(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String, unique=True)
+
+    subscriptions: Mapped[list["SubscriptionsOrm"]] = relationship("SubscriptionsOrm", back_populates="tarif")

@@ -3,6 +3,10 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
+from src.models.shops import ShopsOrm
+from src.models.subscriptions import SubscriptionsOrm
+from src.schemas.shop import ShopBase
+from src.schemas.subscription import SubscriptionBase
 from src.schemas.users_auth import UserDTO
 
 
@@ -24,5 +28,23 @@ class UserPasswordChache(BaseModel):
 
 class UsersResponsePassword(UserPasswordChache):
     id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+
+
+
+
+class UserBase(BaseModel):
+    id: int
+    first_name: Optional[str]
+    last_name: Optional[str]
+    email: Optional[str]
+    number_phone: Optional[str]
+    link_photo: Optional[str]
+    about_me: Optional[str]
+    shop: Optional[ShopBase]
+    subscription: Optional[SubscriptionBase]
 
     model_config = ConfigDict(from_attributes=True)
