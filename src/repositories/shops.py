@@ -1,5 +1,7 @@
 from sqlalchemy import insert, select, update, delete
+from sqlalchemy.exc import NoResultFound, MultipleResultsFound
 
+from src.exceptions import ShopNotFoundEception, DubliateShopException, UserNofFoundException
 from src.models import ShopsOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import ShopsDataMapper
@@ -17,12 +19,14 @@ class ShopsRepository(BaseRepository):
             select(self.model)
             .filter_by(**kwarg)
         )
-
-        results = await self.session.execute(query)
-        model = results.scalars().one_or_none()
-        if model is None:
-            return None
-        return self.mapper.map_to_domain(model)
+        try:
+            results = await self.session.execute(query)
+            model = results.scalars().one()
+            if model is None:
+                return None
+            return self.mapper.map_to_domain(model)
+        except NoResultFound:
+            raise ShopNotFoundEception
 
 
     async def add_data(self, data):
@@ -30,9 +34,13 @@ class ShopsRepository(BaseRepository):
             insert(self.model)
             .values(**data.model_dump()).returning(self.model)
         )
-        results = await self.session.execute(query)
-        model = results.scalars().one()
-        return self.mapper.map_to_domain(model)
+        try:
+            results = await self.session.execute(query)
+            model = results.scalars().one()
+            return self.mapper.map_to_domain(model)
+        except MultipleResultsFound:
+            raise DubliateShopException
+
 
 
     async def edit_link_shop(self, user, **filter_by) -> None:
@@ -41,7 +49,10 @@ class ShopsRepository(BaseRepository):
             .filter_by(user_id=user)
             .values(**filter_by)
         )
-        await self.session.execute(stmt_edit_hotel)
+        try:
+            await self.session.execute(stmt_edit_hotel)
+        except NoResultFound:
+            raise UserNofFoundException
 
 
     async def get_all_shop_except(self):
@@ -71,10 +82,12 @@ class ShopsRepository(BaseRepository):
             .filter_by(user_id=user)
             .values(status_open=status).returning(self.model)
         )
-
-        results = await self.session.execute(query)
-        model = results.scalars().one_or_none()
-        return self.mapper.map_to_domain(model)
+        try:
+            results = await self.session.execute(query)
+            model = results.scalars().one_or_none()
+            return self.mapper.map_to_domain(model)
+        except NoResultFound:
+            raise UserNofFoundException
 
 
     async def delete_shops(self, shop_id):
@@ -82,7 +95,10 @@ class ShopsRepository(BaseRepository):
             delete(self.model)
             .filter_by(id=shop_id)
         )
-        await self.session.execute(query)
+        try:
+            await self.session.execute(query)
+        except NoResultFound:
+            raise ShopNotFoundEception
 
 
     async def edit_shop(self, user, data):
@@ -91,6 +107,9 @@ class ShopsRepository(BaseRepository):
             .filter_by(user_id=user)
             .values(**data.model_dump(exclude_unset=True)).returning(self.model)
         )
-        results = await self.session.execute(query)
-        model = results.scalars().one_or_none()
-        return self.mapper.map_to_domain(model)
+        try:
+            results = await self.session.execute(query)
+            model = results.scalars().one_or_none()
+            return self.mapper.map_to_domain(model)
+        except NoResultFound:
+            raise UserNofFoundException

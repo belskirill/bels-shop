@@ -2,7 +2,9 @@ from datetime import datetime
 
 from pydantic import BaseModel
 from sqlalchemy import insert, select, update, delete
+from sqlalchemy.exc import NoResultFound
 
+from src.exceptions import PasswordChangeNotFoundException
 from src.models.users import PasswordChangeTokenOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import PasswordChangeTokenOrmDataMapper
@@ -30,9 +32,12 @@ class PasswordChangeRepository(BaseRepository):
             select(self.model)
             .filter_by(user_id=user_id, is_used=False)
         )
-        results = await self.session.execute(query)
-        model = results.scalars().one()
-        return self.mapper.map_to_domain(model)
+        try:
+            results = await self.session.execute(query)
+            model = results.scalars().one()
+            return self.mapper.map_to_domain(model)
+        except NoResultFound:
+            raise PasswordChangeNotFoundException
 
 
     async def edit_data(self, id):

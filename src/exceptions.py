@@ -30,6 +30,23 @@ class FailedPasswordException(BelsShopException):
 class UserNotFondException(BelsShopException):
     detail = "Пользователь не найден!"
 
+class ShopNotFoundEception(BelsShopException):
+    detail = "Магазин не найден!!"
+
+
+class PasswordChangeNotFoundException(BelsShopException):
+    detail = "Заявка не найдена!"
+
+
+class UserNofFoundException(BelsShopException):
+    detail = "Пользователь не найден!"
+
+class RuntimeErrorException(BelsShopException):
+    detail = "Ошибка при загрузке файла!"
+
+class DubliateShopException(BelsShopException):
+    detail = "Такой магазин уже существует!"
+
 
 
 
@@ -64,3 +81,36 @@ class FailedPasswordHTTPException(BelsHotelHTTPException):
 class UserNotFondHTTPException(BelsHotelHTTPException):
     detail = "Пользователь не найден!"
     status_code = 401
+
+
+class ShopNotFoundHTTPException(BelsHotelHTTPException):
+    detail = "Магазин не найден!"
+    status_code = 401
+
+class UserNofFoundHTTPException(BelsHotelHTTPException):
+    detail = "Пользователь не найден!"
+    status_code = 401
+
+class RuntimeErrorHTTPException(BelsHotelHTTPException):
+    detail = "Ошибка при загрузке фото!"
+    status_code = 409
+
+
+class PasswordChangeNotFoundHTTPException(BelsHotelHTTPException):
+    detail = "Заявка не найдена!"
+    status_code = 401
+
+class MyShopNotFoundHTTPException(BelsHotelHTTPException):
+    detail = "У вас нет магазина!!"
+    status_code = 401
+
+class DubliateShopHTTPException(BelsHotelHTTPException):
+    detail = "Такой магазин уже существует!"
+    status_code = 409
+
+
+class ErrorFormatImageHTTPException(BelsHotelHTTPException):
+    detail = "Неверный формат изображения!!"
+    status_code = 409
+
+

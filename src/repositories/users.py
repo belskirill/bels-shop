@@ -3,10 +3,10 @@ from sqlalchemy import insert, select, update
 import logging
 
 from asyncpg.exceptions import UniqueViolationError
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import joinedload
 
-from src.exceptions import UserAlreadyExists
+from src.exceptions import UserAlreadyExists, UserNofFoundException
 from src.models.subscriptions import SubscriptionsOrm
 from src.models.users import UsersOrm
 from src.repositories.base import BaseRepository
@@ -63,9 +63,12 @@ class UsersRepository(BaseRepository):
             .filter_by(id=user_id)
             .values(data.model_dump(exclude_unset=True))
         ).returning(self.model)
-        results = await self.session.execute(query)
-        model = results.scalars().one()
-        return UserEditDTO.model_validate(model)
+        try:
+            results = await self.session.execute(query)
+            model = results.scalars().one()
+            return UserEditDTO.model_validate(model)
+        except NoResultFound:
+            raise UserNofFoundException
 
     async def get_user_base_info_model(self, user_id):
         query = (
@@ -74,9 +77,12 @@ class UsersRepository(BaseRepository):
             .options(joinedload(self.model.subscription).joinedload(SubscriptionsOrm.tarif))
             .filter_by(id=user_id)
                  )
-        results = await self.session.execute(query)
-        model = results.scalars().one()
-        return UserBase.model_validate(model, from_attributes=True)
+        try:
+            results = await self.session.execute(query)
+            model = results.scalars().one()
+            return UserBase.model_validate(model, from_attributes=True)
+        except NoResultFound:
+            raise UserNofFoundException
 
 
     async def edit_link(self, user, **filter_by) -> None:
@@ -85,7 +91,10 @@ class UsersRepository(BaseRepository):
             .filter_by(id=user)
             .values(**filter_by)
         )
-        await self.session.execute(stmt_edit_hotel)
+        try:
+            await self.session.execute(stmt_edit_hotel)
+        except NoResultFound:
+            raise UserNofFoundException
 
 
 

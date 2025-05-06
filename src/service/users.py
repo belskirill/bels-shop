@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 
 import logging
 
-from src.exceptions import UserNotFondException, FailedPasswordException
+from src.exceptions import UserNotFondException, FailedPasswordException, PasswordChangeNotFoundException, \
+    UserNofFoundException, RuntimeErrorException
 from src.schemas.users import UserPasswordChache
 from src.service.auth import AuthService
 from src.service.base import BaseService
@@ -41,30 +42,44 @@ class UsersService(BaseService):
 
 
     async def change_confirmed_password(self, user_id):
-        user = await self.db.password_change.get_data(user_id)
-        if user.expires_at < datetime.utcnow():
-            raise ... # время ожидания истекло
-        await self.db.users.update_password(user.user_id, user.new_password_hash)
-        await self.db.password_change.edit_data(user.id)
-        await self.db.commit()
-        logging.warning(user)
+        try:
+            user = await self.db.password_change.get_data(user_id)
+            if user.expires_at < datetime.utcnow():
+                raise ... # время ожидания истекло
+            await self.db.users.update_password(user.user_id, user.new_password_hash)
+            await self.db.password_change.edit_data(user.id)
+            await self.db.commit()
+            logging.warning(user)
+        except PasswordChangeNotFoundException:
+            raise PasswordChangeNotFoundException
 
     async def edit_base_info(self, user_id, data):
-        user = await self.db.users.user_edit_info(user_id, data)
-        await self.db.commit()
-        return user
+        try:
+            user = await self.db.users.user_edit_info(user_id, data)
+            await self.db.commit()
+            return user
+        except UserNofFoundException:
+            raise UserNofFoundException
 
 
     async def get_user_base_info(self, user_id):
-        user = await self.db.users.get_user_base_info_model(user_id)
-        return user
+        try:
+            user = await self.db.users.get_user_base_info_model(user_id)
+            return user
+        except UserNofFoundException:
+            raise UserNofFoundException
 
 
     async def edit_photo(self, user, file):
-        link = await download_image_user(file)
-        await self.db.users.edit_link(user, link_photo=link)
-        await self.db.commit()
-        return link
+        try:
+            link = await download_image_user(file)
+            await self.db.users.edit_link(user, link_photo=link)
+            await self.db.commit()
+            return link
+        except UserNofFoundException:
+            raise UserNofFoundException
+        except RuntimeError:
+            raise RuntimeErrorException
 
 
 
