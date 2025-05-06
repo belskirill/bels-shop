@@ -28,6 +28,8 @@ class UsersOrm(Base):
         "PasswordChangeTokenOrm", back_populates="user"
     )
 
+    reviews: Mapped[list["ReviewsOrm"]] = relationship("ReviewsOrm", back_populates="user")
+
 
 class PasswordChangeTokenOrm(Base):
         __tablename__ = "password_change_tokens"

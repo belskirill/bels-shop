@@ -18,3 +18,4 @@ class ShopsOrm(Base):
     confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user: Mapped["UsersOrm"] = relationship("UsersOrm", back_populates="shop")
+    goods: Mapped[list["GoodsOrm"]] = relationship("GoodsOrm", back_populates="shop")
