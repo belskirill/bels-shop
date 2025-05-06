@@ -1,7 +1,7 @@
 from sqlalchemy import insert, select, update, delete
 from sqlalchemy.exc import NoResultFound, MultipleResultsFound
 
-from src.exceptions import ShopNotFoundEception, DubliateShopException, UserNofFoundException
+from src.exceptions import ShopNotFoundEception, DubliateShopException, UserNofFoundException, NoResultFoundException
 from src.models import ShopsOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import ShopsDataMapper
@@ -25,7 +25,7 @@ class ShopsRepository(BaseRepository):
             if model is None:
                 return None
             return self.mapper.map_to_domain(model)
-        except NoResultFound:
+        except NoResultFoundException:
             raise ShopNotFoundEception
 
 
@@ -60,11 +60,10 @@ class ShopsRepository(BaseRepository):
             select(self.model)
             .filter_by(confirmed=False)
         )
-
         results = await self.session.execute(query)
         model = results.scalars().one_or_none()
         if model is None:
-            return None
+            return NoResultFoundException
         return self.mapper.map_to_domain(model)
 
 
@@ -74,7 +73,10 @@ class ShopsRepository(BaseRepository):
             .filter_by(id=shop_id)
             .values(confirmed=True)
         )
-        await self.session.execute(query)
+        try:
+            await self.session.execute(query)
+        except NoResultFound:
+            raise ShopNotFoundEception
 
     async def change_status_db(self, status, user):
         query = (

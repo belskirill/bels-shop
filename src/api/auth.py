@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Response, Request, Depends
+import logging
+
+from fastapi import APIRouter, Response, Request, Depends, HTTPException
 
 
 from src.api.dependencies import DBDep, UserValidRefresh, UserIdDep, UserExpiredAccess, access_token_check, \
@@ -51,10 +53,15 @@ async def refresh_access_token(
     request: Request, response: Response, db: DBDep, user: UserValidRefresh,
     check_access_token: bool = Depends(access_token_check)
 ):
-    new_access_token = AuthService(db).create_access_token(
-        {"user_id": user.id, "email": user.email, "shop_id": user.shop_id,
-         "subscription_id": user.subscription_id, "number_phone": user.number_phone}
-    )
-    response.set_cookie("access_token", new_access_token)
+    try:
+        new_access_token = AuthService(db).create_access_token(
+            {"user_id": user.id, "email": user.email, "shop_id": user.shop_id,
+             "subscription_id": user.subscription_id, "number_phone": user.number_phone}
+        )
+        response.set_cookie("access_token", new_access_token)
 
-    return {"access_token": new_access_token}
+        return {"access_token": new_access_token}
+    except Exception as e:
+        logging.warning(e)
+        raise HTTPException(status_code=409, detail=str("Не удалось создать токен"))
+

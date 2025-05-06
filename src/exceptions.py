@@ -34,6 +34,10 @@ class ShopNotFoundEception(BelsShopException):
     detail = "Магазин не найден!!"
 
 
+class NoResultFoundException(BelsShopException):
+    detail = "Нет магазинов на проверку"
+
+
 class PasswordChangeNotFoundException(BelsShopException):
     detail = "Заявка не найдена!"
 
@@ -112,5 +116,9 @@ class DubliateShopHTTPException(BelsHotelHTTPException):
 class ErrorFormatImageHTTPException(BelsHotelHTTPException):
     detail = "Неверный формат изображения!!"
     status_code = 409
+
+class NoResultFoundHTTPException(BelsHotelHTTPException):
+    status_code = 401
+    detail = "Нет магазинов на проверку"
 
 
