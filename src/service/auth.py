@@ -7,6 +7,7 @@ import jwt
 
 from src.exceptions import UserAlreadyExists, UserAlreadyExistsException, FailRegisterException, \
     IncorrectPasswordException, FailedPasswordException, UserNotFondException
+from src.init import redis_manager
 from src.schemas.users_auth import UserRequestDTO, UserAdd
 from src.service.base import BaseService
 from src.config import settigns
@@ -39,7 +40,6 @@ class AuthService(BaseService):
             "type": "refresh"  # отличаем тип токена
         })
         return jwt.encode(to_encode, settigns.JWT_SECRET_KEY, algorithm=settigns.JWT_ALGORITHM)
-
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
@@ -83,6 +83,8 @@ class AuthService(BaseService):
             if not AuthService().verify_password(
                 data.password, user.password
             ):
+                count = await self.check_user_attemps(user.id)
+                logging.warning(count)
                 raise FailedPasswordException
             access_token = AuthService().create_access_token(
                 {"user_id": user.id, "email": user.email, "shop_id": user.shop_id,
@@ -101,3 +103,14 @@ class AuthService(BaseService):
              "subscription_id": user.subscription_id, "number_phone": user.number_phone}
         )
         return refresh_token
+
+    async def get_user_attemps(self, data):
+        return await self.db.users.get_one(email=data.email)
+
+    async def check_user_attemps(self, user_id):
+        count_attemps = await redis_manager.get(f"attemps_user_id:{user_id}")
+        logging.warning(count_attemps)
+        await redis_manager.incr_with_expire(f"attemps_user_id:{user_id}")
+        raise HTTPException(status_code=409,
+                            detail=f"Неверный пароль, кол-во попыток "
+                                   f"{5 - int(count_attemps) if count_attemps else 4}")

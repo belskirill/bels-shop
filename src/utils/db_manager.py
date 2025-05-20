@@ -1,5 +1,3 @@
-from sqlalchemy import delete
-
 from src.repositories.goods import GoodsRepository
 from src.repositories.passwordchange import PasswordChangeRepository
 from src.repositories.reviews import ReviewsRepository

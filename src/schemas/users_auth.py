@@ -67,3 +67,14 @@ class UserEditDTO(BaseModel):
     # password_change_tokens: Optional[List[UserPasswordChache]]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserReviewDTO(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    link_photo: Optional[str] = None
+
+    # password_change_tokens: Optional[List[UserPasswordChache]]
+
+    model_config = ConfigDict(from_attributes=True)

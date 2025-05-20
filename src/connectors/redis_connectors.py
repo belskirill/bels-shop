@@ -10,9 +10,9 @@ class RedisManager:
         self.redis = None
 
     async def connect(self):
-        logging.info("Начинаю подключение к Redis...")
+        logging.warning("Начинаю подключение к Redis...")
         self.redis = await redis.Redis(host=self.host, port=self.port)
-        logging.info("Успешное подключение к Redis...")
+        logging.warning("Успешное подключение к Redis...")
 
     async def set(self, key, value, expire):
         if expire:
@@ -22,6 +22,12 @@ class RedisManager:
 
     async def get(self, key):
         return await self.redis.get(key)
+
+    async def incr_with_expire(self, key: str, expire: int = 600) -> int:
+        count = await self.redis.incr(key)
+        if count == 1:
+            await self.redis.expire(key, expire)
+        return count
 
     async def delete(self, key):
         await self.redis.delete(key)

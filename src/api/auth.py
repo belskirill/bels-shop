@@ -4,7 +4,7 @@ from fastapi import APIRouter, Response, Request, Depends, HTTPException
 
 
 from src.api.dependencies import DBDep, UserValidRefresh, UserIdDep, UserExpiredAccess, access_token_check, \
-    CheckNoLogin, ChechLogin
+    CheckNoLogin, ChechLogin, check_count_valid
 from src.exceptions import UserAlreadyExistsException, UserAlreadyExistsHTTPException, FailRegisterException, \
     FailRegisterHTTPException, UserNotFondHTTPException, UserNotFondException, FailedPasswordHTTPException, \
     FailedPasswordException, IncorrectPasswordHTTPException, IncorrectPasswordException
@@ -26,7 +26,14 @@ async def register_user(data: UserRequestDTO, db: DBDep):
 
 
 @router.post("/login")
-async def login_user(data: UserLoginDTO, db: DBDep, response: Response, checklogin: ChechLogin):
+async def login_user(
+    data: UserLoginDTO,
+    db: DBDep,
+    response: Response,
+    checklogin: ChechLogin,
+):
+    user = await AuthService(db).get_user_attemps(data)
+    await check_count_valid(user.id)
     try:
         access_token = await AuthService(db).login_user(data)
         refresh_token = await AuthService(db).refresh_token(data)

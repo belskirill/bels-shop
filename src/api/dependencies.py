@@ -1,14 +1,19 @@
 from typing import Annotated
 import jwt
+
+
 from src import time
 
 from fastapi import Depends, Request, HTTPException
 from jwt import ExpiredSignatureError, InvalidTokenError
 
+from src.config import settigns
 
 from src.database import async_session_maker
+from src.init import redis_manager
 from src.service.auth import AuthService
 from src.utils.db_manager import DBManager
+
 
 
 async def get_db():
@@ -147,5 +152,12 @@ async def access_token_check(request: Request):
 
 
 UserExpiredAccess = Annotated[None, Depends(access_token_check)]
+
+async def check_count_valid(user_id):
+    count_attemps = await redis_manager.get(f"attemps_user_id:{user_id}")
+    if count_attemps:
+        if int(count_attemps) == 5:
+            raise HTTPException(status_code=409, detail=f"Превышено кол-во попыток входа, попробуйте позже")
+
 
 
